@@ -52,33 +52,33 @@ void genera_sopa(sopa_t *s)
     // 3 - colocar_palabra()
     // 4 - repetir 1-3
 
-    // s->n_par = 5;
-    // strcpy(s->par[0].ll, "ALZINA");
-    // strcpy(s->par[1].ll, "ARBUST");
-    // strcpy(s->par[2].ll, "BOLET");
-    // strcpy(s->par[3].ll, "CAMI");
-    // strcpy(s->par[4].ll, "PEDRA");
+    s->n_par = 5;
+    strcpy(s->paraules[0].ll, "ALZINA");
+    strcpy(s->paraules[1].ll, "ARBUST");
+    strcpy(s->paraules[2].ll, "BOLET");
+    strcpy(s->paraules[3].ll, "CAMI");
+    strcpy(s->paraules[4].ll, "PEDRA");
 
-    // s->n_encerts = 2;
-    // s->par[0].enc = false;
-    // s->par[1].enc = true;
-    // s->par[2].enc = true;
-    // s->par[3].enc = false;
-    // s->par[4].enc = false;
+    s->n_encerts = 2;
+    s->paraules[0].enc = false;
+    s->paraules[1].enc = true;
+    s->paraules[2].enc = true;
+    s->paraules[3].enc = false;
+    s->paraules[4].enc = false;
 
-    // // Ara posem un parell de paraules a la sopa com si s'haguessin encertat
-    // s->lletres[5] = 'B'; s->encertades[5] = true;
-    // s->lletres[6] = 'O'; s->encertades[6] = true;
-    // s->lletres[7] = 'L'; s->encertades[7] = true;
-    // s->lletres[8] = 'E'; s->encertades[8] = true;
-    // s->lletres[9] = 'T'; s->encertades[9] = true;
+    // Ara posem un parell de paraules a la sopa com si s'haguessin encertat
+    s->lletres[5] = 'B'; s->encertades[5] = false;
+    s->lletres[6] = 'O'; s->encertades[6] = false;
+    s->lletres[7] = 'L'; s->encertades[7] = false;
+    s->lletres[8] = 'E'; s->encertades[8] = false;
+    s->lletres[9] = 'T'; s->encertades[9] = false;
 
-    // s->lletres[65 + s->dim] = 'A'; s->encertades[65 + s->dim] = true;
-    // s->lletres[65 + 2 * s->dim] = 'R'; s->encertades[65 + 2 * s->dim] = true;
-    // s->lletres[65 + 3 * s->dim] = 'B'; s->encertades[65 + 3 * s->dim] = true;
-    // s->lletres[65 + 4 * s->dim] = 'U'; s->encertades[65 + 4 * s->dim] = true;
-    // s->lletres[65 + 5 * s->dim] = 'S'; s->encertades[65 + 5 * s->dim] = true;
-    // s->lletres[65 + 6 * s->dim] = 'T'; s->encertades[65 + 6 * s->dim] = true;
+    s->lletres[65 + s->dim] = 'A'; s->encertades[65 + s->dim] = true;
+    s->lletres[65 + 2 * s->dim] = 'R'; s->encertades[65 + 2 * s->dim] = false;
+    s->lletres[65 + 3 * s->dim] = 'B'; s->encertades[65 + 3 * s->dim] = false;
+    s->lletres[65 + 4 * s->dim] = 'U'; s->encertades[65 + 4 * s->dim] = false;
+    s->lletres[65 + 5 * s->dim] = 'S'; s->encertades[65 + 5 * s->dim] = false;
+    s->lletres[65 + 6 * s->dim] = 'T'; s->encertades[65 + 6 * s->dim] = false;
     
 }
 
@@ -144,14 +144,88 @@ void mostra_sopa (sopa_t *s)
 
 }
 
+int comparar_alfabeticamente(const void *paraula_a, const void *paraula_b)
+{
+    return strcmp(((paraula_t *)paraula_a)->ll, ((paraula_t *)paraula_b)->ll);
+}
+
+void ordenar_alfabeticamente(paraula_t paraules[], int n)
+{
+    qsort(paraules, n, sizeof(paraula_t), comparar_alfabeticamente);
+}
+
+int comparar_longitud(const void *paraula_a, const void *paraula_b)
+{
+    return strlen(((paraula_t *)paraula_a)->ll) - strlen(((paraula_t *)paraula_b)->ll);
+}
+
+void ordenar_longitud(paraula_t paraules[], int n)
+{
+    qsort(paraules, n, sizeof(paraula_t), comparar_longitud);
+}
+
+bool comprovar_encert(sopa_t* s, int fil, int col, int dir) {
+   
+    bool encert = false;
+
+   for(int i=0;i<MAX_PARAULES; i++){
+        if (!s->paraules[i].enc) {
+
+            if (fil == s->paraules[i].x && col == s->paraules[i].y && dir == s->paraules[i].z) {
+                s->n_encerts++;
+                encert = true;
+            }
+
+        }
+   }
+
+   return encert;
+}
+
+void marcar_encert(sopa_t *s, paraula_t paraula){
+    
+    int lon = strlen(paraula.ll) -1;
+    int start, end;
+    
+    for (int i=0; i<=lon; i++){
+
+        if (paraula.z == UP || paraula.z == DOWN)
+            s->encertades[s->dim * (paraula.x + i) + paraula.y] =  true;
+
+        else 
+            s->encertades[s->dim*paraula.y + paraula.x + i] =  true;
+
+        
+    }
+
+}
+
 int main() {
 
-    sopa_t sopa;    // La sopa de lletres
+    sopa_t sopa;    // La sopa de 
+    
+    // paraules de prova
+    paraula_t bolet, arbust;
 
-    // genera_sopa(&sopa);     // La generem (exemple)
+    strcpy(bolet.ll, "BOLET");
+    bolet.x = 5;
+    bolet.y = 0;
+    bolet.z = 2;
+    
+    strcpy(arbust.ll, "ARBUST");
+    arbust.x = 3;
+    arbust.y = 5;
+    arbust.z = -1;
 
-    // mostra_sopa(&sopa);      // La mostrem per pantalla
+    genera_sopa(&sopa);     // La generem (exemple)
 
+    mostra_sopa(&sopa);
+
+    // check 
+    marcar_encert(&sopa, bolet);
+    marcar_encert(&sopa, arbust);
+    
+    mostra_sopa(&sopa);      
 
     return 0;
 }
