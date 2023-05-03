@@ -5,6 +5,9 @@
 #define MAX_LLETRES 8
 #define MAX_PARAULES 10
 
+#define MIN_TAMANY_TAULER 10
+#define MAX_TAMANY_TAULER 40
+
 #define UP 1
 #define DOWN -1
 #define LEFT -2
@@ -43,7 +46,7 @@ void llegir_fitxer( sopa_t *s);
  * @param n Cantidad de paraules
  * @pre El parametro paraules[] debe tener al menos un objeto paraula_t.
  */
-void ordenar_alfabeticament(paraula_t paraules[], int n);
+void ordenar_alfabeticamente(paraula_t paraules[], int n);
 
 /**
  * Compara dos palabras e indica cual es mayor segun el alfabeto.
@@ -51,7 +54,7 @@ void ordenar_alfabeticament(paraula_t paraules[], int n);
  * @param paraula_b Palabra de palabras a ordenar.
  * @pre Los char[] de caracteres ll en paraula_a y paraula_b no pueden ser nulos ni vacíos.
  */
-int comparar_longitud(const void *paraula_a, const void *paraula_b);
+int comparar_alfabeticamente(const void *paraula_a, const void *paraula_b);
 
 /**
  * Ordena el array de paraules segun la longitud de las palabras.
@@ -69,17 +72,36 @@ void ordenar_longitud(paraula_t paraules[], int n);
  */
 int comparar_longitud(const void *paraula_a, const void *paraula_b);
 
-// funcio principal per generar la sopa
+/**
+ * Pregunem la mida de la taula a l'usuari
+ * @param s sopa
+ */
+void preguntar_tamany(sopa_t *s);
+
+/**
+ * Creem les taules
+ * @param s sopa
+ */
+void crear_taules(sopa_t *s);
+
+/**
+ * @brief funcio general per generar la sopa de lletres
+*/
 void genera_sopa(sopa_t *s);
 
 /**
-* comprova si la paraula introduida per l'usuari esta en el lloc indicat
-* @param s paraula a comprovar
-* @param fil numero de fila a comprovar
-* @param col numero de columna a comprovar
-* @param dir direccio de la paraula
+ * @brief demana una paraula a l'usuari i la guarda en el struct
+ * @param paraula on guardem la paraula 
 */
-bool comprovar_encert(sopa_t* s, int fil, int col, int dir);
+bool demanar_paraula(paraula_t *paraula);
+
+/**
+* comprova si la paraula introduida per l'usuari esta en el lloc indicat
+* @param s sopa de lletres
+* @param paraula paraulta_t introduida per l'usuari
+* @return la posició de la paraula en sopa->paraules[], si no existeix -1
+*/
+int comprovar_encert(sopa_t* s, paraula_t paraula);
 
 /**
  * @brief marcar la paraula encertada a la sopa de lletres
@@ -87,3 +109,13 @@ bool comprovar_encert(sopa_t* s, int fil, int col, int dir);
  * @param paraula paraulta_t paraula a marcar
 */
 void marcar_encert(sopa_t *s, paraula_t paraula);
+
+/**
+* saludem a l'usuari
+*/
+void mostrar_saludo();
+
+/**
+* ens acomiadem de l'usuari
+*/
+void mostrar_despedida();
