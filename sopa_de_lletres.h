@@ -9,12 +9,9 @@
 #define MAX_TAMANY_TAULER 40
 
 #define UP 1
-#define DOWN -1
-#define LEFT -2
-#define RIGHT 2
-
-#define FORWARD 1
-#define REVERSE -1
+#define DOWN 2
+#define LEFT 3
+#define RIGHT 4
 
 
 /* Definicio del tipus per a desar les dades de la sopa de lletres */
@@ -38,7 +35,7 @@ typedef struct
 } sopa_t;
 
 // llegir paraules del fitxer i guardar en sopa->paraules
-void llegir_fitxer( sopa_t *s);
+void llegir_fitxer(sopa_t *s, char nom_fitxer[]);
 
 /**
  * Ordena el array de paraules segun el alfabeto.
@@ -88,6 +85,11 @@ void crear_taules(sopa_t *s);
  * @brief funcio general per generar la sopa de lletres
 */
 void genera_sopa(sopa_t *s);
+
+/**
+ * @brief mostra les paraules no encertades per pantalla
+*/
+void mostrar_paraules (paraula_t paraules[], int n);
 
 /**
  * @brief demana una paraula a l'usuari i la guarda en el struct

@@ -5,26 +5,26 @@
 #include "sopa_de_lletres.h"
 
 // llegir paraules del fitxer i guardar en sopa->paraules
-void llegir_fitxer(sopa_t *s){
+void llegir_fitxer(sopa_t *s, char nom_fitxer[]){
 
         FILE *f;
-        char const *nom = "paraules.txt";
-        f = fopen(nom, "r");
+        // char const *nom = "paraules.txt";
+        f = fopen(nom_fitxer, "r");
         char paraula[MAX_LLETRES + 1];
         
 
-        if (f == NULL) fprintf(stderr, "error al obrir el fitxer %s\n", nom);
+        if (f == NULL) fprintf(stderr, "error al obrir el fitxer %s\n", nom_fitxer);
         else {
 
             int i=0;
             while (fgets(paraula, MAX_LLETRES + 1 , f)) {
-                // printf("%s", paraula);
+                // printf("%s \n", paraula);
                 s->paraules[i] = (paraula_t) { .ll = "", .enc = false };
                 strcpy( s->paraules[i].ll, paraula);
                 i++;
             }
 
-            s->n_par = i+1;
+            s->n_par = i;
 
         }
         
@@ -36,7 +36,7 @@ void llegir_fitxer(sopa_t *s){
 /* que haureu de fer la vostra pròpia. */
 void genera_sopa(sopa_t *s)
 {
-     s->dim = 30;    // Mida màxima: 40 x 40
+
     s->lletres = malloc(s->dim * s->dim * sizeof(char));   // Espai per a les lletres
     s->encertades = malloc(s->dim * s->dim * sizeof(char)); // Per saber si una lletra correspon a encert
     for (int i = 0; i < s->dim * s->dim; i++)
@@ -46,43 +46,34 @@ void genera_sopa(sopa_t *s)
         s->lletres[i] = 'A' + (rand() % ('Z'-'A' + 1));
     }
 
-    // 1 - generar_posicion()
-    // 2 - comprueba_disponibilidad()
-    // 3 - colocar_palabra()
-    // 4 - repetir 1-3
+    printf("longitud \n");
+    ordenar_longitud(s->paraules, s->n_par);
+    mostrar_paraules(s->paraules, s->n_par);
 
-    s->n_par = 5;
-    strcpy(s->paraules[0].ll, "ALZINA");
-    strcpy(s->paraules[1].ll, "ARBUST");
-    strcpy(s->paraules[2].ll, "BOLET");
-    strcpy(s->paraules[3].ll, "CAMI");
-    strcpy(s->paraules[4].ll, "PEDRA");
+    int x, y, z;
+    bool ok;
 
-    s->paraules[2].x = 5;
-    s->paraules[2].y = 0;
-    s->paraules[2].z = 2;
+    for(int i=0; i<s->n_par; i++){
 
-    s->n_encerts = 2;
-    s->paraules[0].enc = false;
-    s->paraules[1].enc = false;
-    s->paraules[2].enc = false;
-    s->paraules[3].enc = false;
-    s->paraules[4].enc = false;
-
-    // Ara posem un parell de paraules a la sopa com si s'haguessin encertat
-    s->lletres[5] = 'B'; s->encertades[5] = false;
-    s->lletres[6] = 'O'; s->encertades[6] = false;
-    s->lletres[7] = 'L'; s->encertades[7] = false;
-    s->lletres[8] = 'E'; s->encertades[8] = false;
-    s->lletres[9] = 'T'; s->encertades[9] = false;
-
-    s->lletres[65 + s->dim] = 'A'; s->encertades[65 + s->dim] = false;
-    s->lletres[65 + 2 * s->dim] = 'R'; s->encertades[65 + 2 * s->dim] = false;
-    s->lletres[65 + 3 * s->dim] = 'B'; s->encertades[65 + 3 * s->dim] = false;
-    s->lletres[65 + 4 * s->dim] = 'U'; s->encertades[65 + 4 * s->dim] = false;
-    s->lletres[65 + 5 * s->dim] = 'S'; s->encertades[65 + 5 * s->dim] = false;
-    s->lletres[65 + 6 * s->dim] = 'T'; s->encertades[65 + 6 * s->dim] = false;
+        ok = true;
     
+        // generar posicio aleatoria
+        x = rand() % s->dim; 
+        y = rand() % s->dim; 
+        z = (rand() % 4) + 1;
+
+        // comprovar que no surti del tauler
+        if (z == UP && (x - strlen(s->paraules[i].ll) < 0)) ok = false;
+        else if (z == DOWN && (x + strlen(s->paraules[i].ll) > s->dim)) ok = false;
+        else if (z == LEFT && (y - strlen(s->paraules[i].ll) < 0)) ok = false;
+        else if (z == RIGHT && (y + strlen(s->paraules[i].ll) > s->dim)) ok = false;
+
+        // comprovar que els espais estiguin buits o hi hagi la lletra que toca
+
+        // colocar paraula
+
+    }
+
 }
 
 
@@ -110,7 +101,6 @@ void mostra_sopa (sopa_t *s)
 
     printf("\n");
     printf("\033[0m");  // Tornem al color per defecte
-
 
     // Mostrem les lletres. Cada lletra ocupa dos espais: 
     // Si correspon a un encert, es marca
@@ -147,6 +137,18 @@ void mostra_sopa (sopa_t *s)
 
 }
 
+void mostrar_paraules (paraula_t paraules[], int n) {
+
+    printf("Hi han les seguents paraules: \n");
+
+    for (int i=0; i<n; i++){
+        if (paraules[i].enc == false){
+            printf("%s", paraules[i].ll);
+        }
+    }
+
+}
+
 int comparar_alfabeticamente(const void *paraula_a, const void *paraula_b)
 {
     return strcmp(((paraula_t *)paraula_a)->ll, ((paraula_t *)paraula_b)->ll);
@@ -159,7 +161,7 @@ void ordenar_alfabeticamente(paraula_t paraules[], int n)
 
 int comparar_longitud(const void *paraula_a, const void *paraula_b)
 {
-    return strlen(((paraula_t *)paraula_a)->ll) - strlen(((paraula_t *)paraula_b)->ll);
+    return strlen(((paraula_t *)paraula_b)->ll) - strlen(((paraula_t *)paraula_a)->ll) ;
 }
 
 void ordenar_longitud(paraula_t paraules[], int n)
@@ -171,8 +173,8 @@ void preguntar_tamany(sopa_t *s) {
     int tamany;
     
     do {
-        printf("El tamany de la taula ha de ser de 10x10 fins a 40x40, quina mida vols?");
-        scanf("%d", tamany);
+        printf("\n\nEl tamany de la taula ha de ser de 10x10 fins a 40x40, quina mida vols?");
+        scanf("%d", &tamany);
     } while (MAX_TAMANY_TAULER < tamany || tamany < MIN_TAMANY_TAULER);
     
     s->dim = tamany;
@@ -187,7 +189,7 @@ bool demanar_paraula( paraula_t *paraula){
         
     bool fi = false;
 
-    printf("Introdueix la paraula que has trobat: \n");
+    printf("\nIntrodueix la paraula que has trobat: \n");
     scanf("%s", &paraula->ll);
 
     if ( !strcmp( paraula->ll, "RENDICIO") ) fi = true;
@@ -219,10 +221,10 @@ int comprovar_encert(sopa_t* s, paraula_t paraula) {
 
         if (!s->paraules[i].enc) {
 
-        // printf("%s %d %d %d \n", s->paraules[i].ll, s->paraules[i].x, s->paraules[i].y, s->paraules[i].z);
+        printf("%s %d %d %d \n", s->paraules[i].ll, s->paraules[i].x, s->paraules[i].y, s->paraules[i].z);
             
 
-            if (paraula.x == s->paraules[i].x && paraula.y == s->paraules[i].y && paraula.z == s->paraules[i].z) {
+            if ((paraula.x -1) == s->paraules[i].x && (paraula.y -1) == s->paraules[i].y && paraula.z == s->paraules[i].z) {
                 s->n_encerts++; // sumar 1 a les paraules encertades
                 encert = true;
                 posicio = i;
@@ -246,7 +248,7 @@ void marcar_encert(sopa_t *s, paraula_t paraula){
             s->encertades[s->dim * (paraula.x + i) + paraula.y] =  true;
 
         else 
-            s->encertades[s->dim*paraula.y + paraula.x + i] =  true;
+            s->encertades[(s->dim * paraula.x) + paraula.y + i] =  true;
 
     }
 
@@ -255,17 +257,17 @@ void marcar_encert(sopa_t *s, paraula_t paraula){
 }
 
 void mostrar_saludo() {
-    printf("*****************************************************************");
-    printf("Us donem la benvinguda al joc de la sopa de lletres!");
-    printf("Autors: Ian Lopez Molina, Bogdan Struk, Pol Verdejo Marrugat");
-    printf("*****************************************************************");
+    printf("*****************************************************************\n");
+    printf("Us donem la benvinguda al joc de la sopa de lletres!\n");
+    printf("Autors: Ian Lopez Molina, Bogdan Struk, Pol Verdejo Marrugat\n");
+    printf("*****************************************************************\n");
 }
 
 void mostrar_despedida() {
-    printf("*****************************************************************");
-    printf("Us donem les gracies per jugar amb nosaltres!");
-    printf("Autors: Ian Lopez Molina, Bogdan Struk, Pol Verdejo Marrugat");
-    printf("*****************************************************************");
+    printf("*****************************************************************\n");
+    printf("Us donem les gracies per jugar amb nosaltres!\n");
+    printf("Autors: Ian Lopez Molina, Bogdan Struk, Pol Verdejo Marrugat\n");
+    printf("*****************************************************************\n");
 }
 
 int main( int argc, char *argv[] ) {
@@ -280,8 +282,8 @@ int main( int argc, char *argv[] ) {
     paraula_t bolet, arbust;
 
     strcpy(bolet.ll, "BOLET");
-    bolet.x = 5;
-    bolet.y = 0;
+    bolet.x = 0;
+    bolet.y = 5;
     bolet.z = 2;
     
     strcpy(arbust.ll, "ARBUST");
@@ -291,9 +293,18 @@ int main( int argc, char *argv[] ) {
 
 
     mostrar_saludo();
-    // llegir_fitxer(&sopa);
-    genera_sopa(&sopa);     // generem (exemple)
+
+    // LECTURA DE PARAULES
+    llegir_fitxer(&sopa, argv[1]);
+    ordenar_alfabeticamente(sopa.paraules, sopa.n_par);
+    mostrar_paraules(sopa.paraules, sopa.n_par);
+
+    // GENERAR SOPA
+    preguntar_tamany(&sopa);
+    genera_sopa(&sopa);     
+    // printf("generada");
     mostra_sopa(&sopa);
+    // printf("mostrar");
 
 
     while ( ( *sopa.encertades < sopa.n_par ) && !fi ){
