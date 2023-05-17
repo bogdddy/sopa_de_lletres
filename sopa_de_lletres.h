@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <time.h>
 
 /* Archivo de cabecera para la inclusión */
 
@@ -85,6 +86,11 @@ void crear_taules(sopa_t *s);
  * @brief funcio general per generar la sopa de lletres
 */
 void genera_sopa(sopa_t *s);
+
+/**
+ * @brief mostra la sopa de lletres
+*/
+void mostra_sopa (sopa_t *s);
 
 /**
  * @brief mostra les paraules no encertades per pantalla
