@@ -1,19 +1,16 @@
 #include <stdbool.h>
 #include <time.h>
 
-/* Archivo de cabecera para la inclusión */
-
 #define MAX_LLETRES 8
 #define MAX_PARAULES 10
 
-#define MIN_TAMANY_TAULER 10
-#define MAX_TAMANY_TAULER 40
+#define MIN_MIDA_TAULER 10
+#define MAX_MIDA_TAULER 40
 
 #define UP 1
 #define DOWN 2
 #define LEFT 3
 #define RIGHT 4
-
 
 /* Definicio del tipus per a desar les dades de la sopa de lletres */
 /* Es una proposta que podeu canviar, ampliar, etc. */
@@ -35,7 +32,10 @@ typedef struct
     int n_encerts;    // Nombre de paraules encertades
 } sopa_t;
 
-// llegir paraules del fitxer i guardar en sopa->paraules
+/**
+ * @brief llegir paraules del fitxer i guardar en sopa->paraules
+ * @pre les paraules han d'estar separader per salts de linea
+*/
 void llegir_fitxer(sopa_t *s, char nom_fitxer[]);
 
 /**
@@ -71,10 +71,15 @@ void ordenar_longitud(paraula_t paraules[], int n);
 int comparar_longitud(const void *paraula_a, const void *paraula_b);
 
 /**
- * Pregunem la mida de la taula a l'usuari
+ * Gira un string
+*/
+void girar_string(char* str);
+
+/**
+ * Preguntem la mida de la taula a l'usuari
  * @param s sopa
  */
-void preguntar_tamany(sopa_t *s);
+void preguntar_mida(sopa_t *s);
 
 /**
  * Creem les taules
@@ -109,14 +114,14 @@ bool demanar_paraula(paraula_t *paraula);
 * @param paraula paraulta_t introduida per l'usuari
 * @return la posició de la paraula en sopa->paraules[], si no existeix -1
 */
-int comprovar_encert(sopa_t* s, paraula_t paraula);
+int comprovar_encert(sopa_t* s, paraula_t *paraula);
 
 /**
  * @brief marcar la paraula encertada a la sopa de lletres
  * @param s sopa_t status joc
  * @param paraula paraulta_t paraula a marcar
 */
-void marcar_encert(sopa_t *s, paraula_t paraula);
+void marcar_encert(sopa_t *s, paraula_t *paraula);
 
 /**
 * saludem a l'usuari
