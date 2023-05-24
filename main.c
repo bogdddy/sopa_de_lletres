@@ -5,13 +5,17 @@
 #include "sopa_de_lletres.h"
 
 // llegir paraules del fitxer i guardar en sopa->paraules
-void llegir_fitxer(sopa_t *s, char nom_fitxer[]){
+void llegir_fitxer(sopa_t *s, char nom_fitxer[], bool *error){
 
         FILE *f;
         f = fopen(nom_fitxer, "r");
         char paraula[MAX_LLETRES + 1];
+        (*error) = false;
 
-        if (f == NULL) fprintf(stderr, "error al obrir el fitxer %s\n", nom_fitxer);
+        if (f == NULL) {
+            fprintf(stderr, "error al obrir el fitxer %s\n", nom_fitxer);
+            (*error) = true;
+        }
         else {
 
             int i=0;
@@ -36,6 +40,7 @@ void genera_sopa(sopa_t *s)
 
     s->lletres = malloc(s->dim * s->dim * sizeof(char));   // Espai per a les lletres
     s->encertades = malloc(s->dim * s->dim * sizeof(char)); // Per saber si una lletra correspon a encert
+    s->n_encerts = 0;
     
     // inicialitzem la sopa
     for (int i = 0; i < s->dim * s->dim; i++){
@@ -155,13 +160,12 @@ void mostra_sopa (sopa_t *s)
     }
     printf("\n");
 
-    printf("Portes %d encerts.\n", s->n_encerts);
-    printf("Paraules a trobar: %d\n", s->n_par - s->n_encerts);
-    for (int i = 0; i < s->n_par; i++)
-    {
-        if (!s->paraules[i].enc)
-            printf("%s\n", s->paraules[i].ll);
-    }
+    if (s->n_encerts != s->n_par) {
+        printf("Portes %d encerts.\n", s->n_encerts);
+        printf("Paraules a trobar: %d\n", s->n_par - s->n_encerts);
+        mostrar_paraules(s->paraules, s->n_par);
+    } 
+    
     printf("\n");
 
 }
@@ -233,7 +237,7 @@ bool demanar_paraula( paraula_t *paraula){
     printf("\nIntrodueix la paraula que has trobat: \n");
     scanf("%s", &paraula->ll);
 
-    if ( !strcmp( paraula->ll, "RENDICIO") ) fi = true;
+    if ( !strcmp( paraula->ll, "RENDICIO") || !strcmp( paraula->ll, "rendicio")) fi = true;
     
     else {
 
@@ -316,34 +320,42 @@ int main( int argc, char *argv[] ) {
     bool fi = false, victoria = false;
     paraula_t user_input;
     int encert;
+    bool error;
 
     mostrar_saludo();
 
     // LECTURA DE PARAULES
-    llegir_fitxer(&sopa, argv[1]);
-    ordenar_alfabeticamente(sopa.paraules, sopa.n_par);
-    mostrar_paraules(sopa.paraules, sopa.n_par);
+    llegir_fitxer(&sopa, argv[1], &error);
+    if (!error) {
+        ordenar_alfabeticamente(sopa.paraules, sopa.n_par);
+        mostrar_paraules(sopa.paraules, sopa.n_par);
 
-    // GENERAR SOPA
-    preguntar_mida(&sopa);
-    genera_sopa(&sopa);     
-    mostra_sopa(&sopa);
+        // GENERAR SOPA
+        preguntar_mida(&sopa);
+        genera_sopa(&sopa);
+        ordenar_alfabeticamente(sopa.paraules, sopa.n_par);     
+        mostra_sopa(&sopa);
 
-    while ( !victoria && !fi ){
+        while ( !victoria && !fi ){
 
-        fi = demanar_paraula( &user_input );
-        
-        encert = comprovar_encert( &sopa, &user_input);
+            fi = demanar_paraula( &user_input );
+            
+            if (!fi) {
+                encert = comprovar_encert( &sopa, &user_input);
 
-        if ( encert != -1 ) marcar_encert(&sopa, &sopa.paraules[encert]);
-        else printf("La paraula es incorrecte o ja ha estat introduida \n");
+                if ( encert != -1 ) marcar_encert(&sopa, &sopa.paraules[encert]);
+                else printf("La paraula es incorrecte o ja ha estat introduida \n");
 
-        if (sopa.n_encerts == sopa.n_par) victoria = true;
+                if (sopa.n_encerts == sopa.n_par) victoria = true;
+            }
+            
 
+        }
+
+        printf(victoria ? "FELICITATS HAS GUANYAT !! \n": "MES SORT EL PROXIM COP !! \n");
+        mostrar_despedida();
     }
-
-    printf(victoria ? "FELICITATS HAS GUANYAT !! \n": "MES SORT EL PROXIM COP !! \n");
-    mostrar_despedida();
+    
 
     return 0;
 }

@@ -12,8 +12,6 @@
 #define LEFT 3
 #define RIGHT 4
 
-/* Definicio del tipus per a desar les dades de la sopa de lletres */
-/* Es una proposta que podeu canviar, ampliar, etc. */
 typedef struct 
 {
     char ll[MAX_LLETRES + 1];   // Lletres de la paraula (comptem centinella)
@@ -36,7 +34,7 @@ typedef struct
  * @brief llegir paraules del fitxer i guardar en sopa->paraules
  * @pre les paraules han d'estar separader per salts de linea
 */
-void llegir_fitxer(sopa_t *s, char nom_fitxer[]);
+void llegir_fitxer(sopa_t *s, char nom_fitxer[], bool *error);
 
 /**
  * Ordena el array de paraules segun el alfabeto.
